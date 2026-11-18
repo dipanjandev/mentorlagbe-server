@@ -8,7 +8,7 @@ const port = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
-app.use(cors);
+app.use(cors());
 
 const client = new MongoClient(process.env.MONGODB_URI);
 
@@ -27,7 +27,7 @@ export async function connectToMongoDB() {
 const connectedClient = await connectToMongoDB();
 
 app.get("/", (req, res) => {
-  res.send("mentor lagbe is ready...");
+  res.send({ message: "mentor lagbe is ready..." });
 });
 
 app.listen(port, () => {
