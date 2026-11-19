@@ -50,6 +50,12 @@ app.post("/tuitions", async (req, res) => {
   res.send(result);
 });
 
+app.get("/tuitions", async (req, res) => {
+  const cursor = tuitions.find({});
+  const result = await cursor.toArray();
+  res.send(result);
+});
+
 app.listen(port, () => {
   console.log(`Mentor lagbe is running on port : ${port}`);
 });
