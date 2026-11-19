@@ -25,9 +25,22 @@ export async function connectToMongoDB() {
 
 // কানেক্ট করার জন্য
 const connectedClient = await connectToMongoDB();
+const database = connectedClient.db("mentorlagbe-db");
+const users = database.collection("user");
+const tuitions = database.collection("tuitions");
+const applications = database.collection("applications");
+const payments = database.collection("payments");
+const sessions = database.collection("session");
 
 app.get("/", (req, res) => {
   res.send({ message: "mentor lagbe is ready..." });
+});
+
+// get user information...
+app.get("/users", async (req, res) => {
+  const cursor = users.find({});
+  const result = await cursor.toArray();
+  res.send(result);
 });
 
 app.listen(port, () => {
