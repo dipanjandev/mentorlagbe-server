@@ -63,6 +63,17 @@ app.delete("/tuitions/:id", async (req, res) => {
   res.send(result);
 });
 
+// ডাটা আপডেট করার জন্য
+app.patch("/tuitions/:id", async (req, res) => {
+  const id = req.params.id;
+  const updatedData = req.body;
+  const result = await tuitions.updateOne(
+    { _id: new ObjectId(id) },
+    { $set: updatedData },
+  );
+  res.send(result);
+});
+
 app.listen(port, () => {
   console.log(`Mentor lagbe is running on port : ${port}`);
 });
