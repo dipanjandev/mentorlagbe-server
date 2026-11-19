@@ -43,6 +43,13 @@ app.get("/users", async (req, res) => {
   res.send(result);
 });
 
+// Tuition Post Related API's
+app.post("/tuitions", async (req, res) => {
+  const tuition = req.body;
+  const result = await tuitions.insertOne(tuition);
+  res.send(result);
+});
+
 app.listen(port, () => {
   console.log(`Mentor lagbe is running on port : ${port}`);
 });
