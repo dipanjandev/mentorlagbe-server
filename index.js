@@ -92,6 +92,57 @@ app.get("/tuitions", async (req, res) => {
   res.send({ tuitions: result, totalItems, totalPages });
 });
 
+// সিংগেল ডাটা বের করে আনার এপিআই।
+app.get("/tuitions/:id", async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) };
+  const result = await tuitions.findOne(query);
+  res.send(result);
+});
+
+// এপ্লিকেশন জমা নেয়ার এপিআই।
+app.post("/applications", async (req, res) => {
+  try {
+    const applicationData = req.body;
+
+    // স্টুডেন্ট ডুপলিকেট কি না সেটা চেক করা।
+    const existingApplication = await applications.findOne({
+      tuitionId: applicationData.tuitionId,
+      studentEmail: applicationData.studentEmail,
+    });
+
+    // কন্ডিশন যদি স্টুডেন্ট ডুপলিকেট এপ্লাই করে তাহলে তাকে বলব যে তুমি একবার এপ্লাই করেছ।
+    if (existingApplication) {
+      return res.status(400).send({
+        success: false,
+        message: "You have already applied for this tuition",
+      });
+    }
+
+    // আর যদি সে নতুন হয় তাহলে তার এপলিকেশন সেভ করা।
+    const newApplication = {
+      ...applicationData,
+      status: "pending",
+      appliedAt: new Date().toString(),
+    };
+    const result = await applications.insertOne(newApplication);
+
+    // যখন ইনসার্টেড আইড পাবে তখন সার্ভারে সেভ হবে এই মেসেজ।
+    res.send({
+      success: true,
+      insertedId: result.insertedId,
+      message: "Application submitted successfully",
+    });
+  } catch (error) {
+    // যদি অন্য কোন সমস্যা থাকে তাহলে ডাটা যাবে না।
+    console.error("Error Submitting Application:", error);
+    res.status(500).send({
+      success: false,
+      message: "Failed to submit application.",
+    });
+  }
+});
+
 app.delete("/tuitions/:id", async (req, res) => {
   const id = req.params.id;
   const query = { _id: new ObjectId(id) };
