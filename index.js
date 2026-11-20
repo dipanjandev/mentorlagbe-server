@@ -143,6 +143,38 @@ app.post("/applications", async (req, res) => {
   }
 });
 
+// এপলিকেশন খুজে আনার জন্য।
+app.get("/applications", async (req, res) => {
+  // url থেকে ইমেইল বের করার জন্য ডিস্ট্রাকচার করা হল।
+  const { studentEmail, tutorEmail } = req.query;
+  const query = {};
+
+  if (studentEmail) query.studentEmail = studentEmail;
+  if (tutorEmail) query.tutorEmail = tutorEmail;
+
+  // -1 দেয়া হল কারণ লেটেস্ট পোষ্ট গুলো আগে দেখার জন্য।
+  const result = await applications
+    .find(query)
+    .sort({ appliedAt: -1 })
+    .toArray();
+
+  res.send(result);
+});
+
+// আবেদন এর স্ট্যাটাস বদলানোর জন্য।
+app.patch("/applications/:id", async (req, res) => {
+  const id = req.params.id;
+  const { status } = req.body; // "accepted" অথবা "rejected"
+
+  const filter = { _id: new ObjectId(id) };
+  const updateDoc = {
+    $set: { status: status },
+  };
+
+  const result = await applications.updateOne(filter, updateDoc);
+  res.send(result);
+});
+
 app.delete("/tuitions/:id", async (req, res) => {
   const id = req.params.id;
   const query = { _id: new ObjectId(id) };
