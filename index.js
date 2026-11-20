@@ -73,9 +73,23 @@ app.get("/tuitions", async (req, res) => {
     }
   }
 
-  const cursor = tuitions.find(query);
+  // পেজিনেশন এর জন্য কাজ করা হল এখানে।
+  const totalItems = await tuitions.countDocuments(query);
+  let cursor = tuitions.find(query);
+  let totalPages = 1;
+
+  if (req.query.page) {
+    const page = Number(req.query.page);
+    const limit = 6;
+    const skip = (page - 1) * limit;
+
+    totalPages = Math.ceil(totalItems / limit);
+    cursor = cursor.skip(skip).limit(limit);
+  }
+
   const result = await cursor.toArray();
-  res.send(result);
+  // ফ্রন্টএন্ডে গিয়ে data.tuitions-এর বদলে data.result লিখতে হতো তাই এখানে result এর আগে tuitions ব্যবহার করা হল।
+  res.send({ tuitions: result, totalItems, totalPages });
 });
 
 app.delete("/tuitions/:id", async (req, res) => {
