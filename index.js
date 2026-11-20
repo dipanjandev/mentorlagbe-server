@@ -51,7 +51,29 @@ app.post("/tuitions", async (req, res) => {
 });
 
 app.get("/tuitions", async (req, res) => {
-  const cursor = tuitions.find({});
+  // এখানে আমার কুয়েরির কাজ করব ফ্রন্ট এন্ড থেকে যেটা পাঠিয়েছিলাম।
+  const query = {};
+  // console.log("query", req.query);
+  if (req.query) {
+    if (req.query.classLevel) {
+      query.classLevel = req.query.classLevel;
+    }
+    if (req.query.mode) {
+      query.mode = req.query.mode;
+    }
+    if (req.query.daysPerWeek) {
+      query.daysPerWeek = Number(req.query.daysPerWeek);
+    }
+    // সার্চের জন্য এটা করা হল।
+    if (req.query.search) {
+      query.$or = [
+        { title: { $regex: req.query.search, $options: "i" } },
+        { description: { $regex: req.query.search, $options: "i" } },
+      ];
+    }
+  }
+
+  const cursor = tuitions.find(query);
   const result = await cursor.toArray();
   res.send(result);
 });
